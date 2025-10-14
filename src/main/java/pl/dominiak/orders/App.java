@@ -22,7 +22,7 @@ public class App {
             System.exit(1);
         }
 
-        // 2) Read JSON files
+
         ObjectMapper mapper = new ObjectMapper();
         AtomicInteger ok = new AtomicInteger();
         AtomicInteger failed = new AtomicInteger();
