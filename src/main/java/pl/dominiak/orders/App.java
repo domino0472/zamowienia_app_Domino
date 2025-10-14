@@ -11,10 +11,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-/**
- * Loads settings, scans for *.json in configured directory,
- * deserializes with Jackson, generates request numbers, prints results.
- */
+
 public class App {
     public static void main(String[] args) throws Exception {
         // 1) Load app settings
