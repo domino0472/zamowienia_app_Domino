@@ -46,7 +46,7 @@ public class App {
                     });
         }
 
-        System.out.println("SUMMARY: ok=" + ok.get() + ", failed=" + failed.get());
+        System.out.println("SUMMARY: ok= " + ok.get() + ", failed=" + failed.get());
 
 
         if (failed.get() > 0) {
