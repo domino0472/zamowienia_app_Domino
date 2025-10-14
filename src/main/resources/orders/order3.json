@@ -1,0 +1,20 @@
+{
+  "customer": {
+    "firstName": "Marcin",
+    "lastName": "Janowski",
+    "email": "marcin.janowski@example.com",
+    "phone": "+48 456 456 456"
+  },
+  "products": [
+    {
+      "productCode": "SKU-ABC-012",
+      "quantity": 1,
+      "unit": "PCS"
+    },
+    {
+      "productCode": "SKU-XYZ-151",
+      "quantity": 7.5,
+      "unit": "KG"
+    }
+  ]
+}
