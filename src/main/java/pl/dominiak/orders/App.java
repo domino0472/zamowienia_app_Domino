@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        // 1) Load app settings
+      
         AppSettings settings = AppConfigLoader.load();
         Path ordersDir = Path.of(settings.getOrdersDirectory());
         if (!Files.isDirectory(ordersDir)) {
