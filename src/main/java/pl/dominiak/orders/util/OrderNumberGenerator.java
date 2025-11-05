@@ -9,7 +9,7 @@ import java.security.MessageDigest;
 
 /**
  * Builds a deterministic order request number using all available data.
- * Format: OR-<initials>-<items>-<hash16>
+ * Format: {@code OR-<initials>-<items>-<hash16>}
  */
 public final class OrderNumberGenerator {
     private OrderNumberGenerator() {}

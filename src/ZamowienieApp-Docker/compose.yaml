@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  orders-app:
+    # ZMIANA: Używamy klucza 'image' do nazwy tagu
+    image: pl.dominiak.orders/zamowienia-app:latest
+    container_name: orders-processor
+
+    # DODANO: Instrukcja budowania obrazu z Dockerfile
+    build:
+      context: ../   # Katalog, w którym znajduje się pom.xml i katalog src
+      dockerfile: ./src/Dockerfile  # Lokalizacja Dockerfile względem kontekstu
+
+    volumes:
+      - ./zadania_wejsciowe:/app/input/orders
+
+    ports:
+      - "8080:8080"

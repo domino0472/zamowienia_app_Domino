@@ -8,6 +8,7 @@
     <groupId>pl.dominiak.orders</groupId>
     <artifactId>zamowienia-app</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
     <name>ZamowieniaApp</name>
 
     <parent>
@@ -24,26 +25,20 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <jackson.version>2.20.0</jackson.version>
         <main.class.name>pl.dominiak.orders.App</main.class.name>
-
         <docker.build.path>${project.build.directory}/classes/docker</docker.build.path>
     </properties>
 
     <dependencies>
-        <!-- Apache Commons Configuration 2 -->
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-configuration2</artifactId>
             <version>2.12.0</version>
         </dependency>
-
-        <!-- Commons BeanUtils -->
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.11.0</version>
         </dependency>
-
-        <!-- Jackson Databind -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -59,10 +54,10 @@
                 <artifactId>maven-checkstyle-plugin</artifactId>
                 <version>3.6.0</version>
                 <configuration>
-                    <configLocation>google-checks.xml</configLocation>
-
+                    <configLocation>google_checks.xml</configLocation>
                     <consoleOutput>true</consoleOutput>
                     <failsOnError>true</failsOnError>
+                    <headerLocation></headerLocation>
                 </configuration>
                 <executions>
                     <execution>
@@ -86,11 +81,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.12.0</version>
-
                 <configuration>
-                    <outputDirectory>${project.build.directory}/reports/javadoc</outputDirectory>
+                    <outputDirectory>${project.build.directory}/reports/apidocs</outputDirectory>
                 </configuration>
-
                 <executions>
                     <execution>
                         <id>attach-javadocs</id>
@@ -98,7 +91,6 @@
                         <goals>
                             <goal>javadoc</goal>
                         </goals>
-
                     </execution>
                 </executions>
             </plugin>
@@ -139,14 +131,15 @@
                                 <resource>
                                     <directory>${project.build.directory}</directory>
                                     <includes>
-                                        <include>main.jar</include>
+                                        <include>main-exec.jar</include>
                                     </includes>
                                 </resource>
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
                                         <include>appsettings.docker.properties</include>
-                                        <include>cops.xml</include> </includes>
+                                        <include>cops.xml</include>
+                                    </includes>
                                 </resource>
                             </resources>
                         </configuration>
@@ -156,38 +149,29 @@
 
             <plugin>
                 <groupId>com.spotify</groupId>
-                <artifactId>docker-maven-plugin</artifactId>
-                <version>1.2.0</version>
-                <configuration>
-                    <baseImage>maven:3.9.11-amazoncorretto-24</baseImage>
-                    <imageName>${project.groupId}/${project.artifactId}:${project.version}</imageName>
-                    <imageTags>
-                        <imageTag>latest</imageTag>
-                    </imageTags>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.4.13</version>
+                <executions>
+                    <execution>
+                        <id>default-cli</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>build</goal>
+                        </goals>
+                        <configuration>
+                            <dockerfile>Dockerfile</dockerfile>
+                            <contextDirectory>${project.basedir}</contextDirectory>
+                            <repository>pl.dominiak.orders/zamowienia-app</repository>
+                            <tag>1.0-SNAPSHOT</tag>
 
-
-                    <runs>
-                        <run>
-
-                            mvn deploy:deploy-file -Durl=http://localhost.docker.internal:5001/maven -Dfile=pom.xml
-                        </run>
-                    </runs>
-
-                    <resources>
-                        <resource>
-                            <targetPath>/app</targetPath>
-                            <directory>${docker.build.path}</directory>
-                            <include>main.jar</include>
-                            <include>appsettings.docker.properties</include>
-                            <include>cops.xml</include>
-                        </resource>
-                    </resources>
-
-                    <entryPoint>java -jar /app/main.jar</entryPoint>
-                </configuration>
+                            <buildArgs>
+                                <BASE_IMAGE>maven:3.9.11-amazoncorretto-25</BASE_IMAGE>
+                            </buildArgs>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 
         </plugins>
     </build>
-
 </project>
