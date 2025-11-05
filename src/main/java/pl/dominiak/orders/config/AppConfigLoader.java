@@ -12,7 +12,7 @@ public final class AppConfigLoader {
 
     public static AppSettings load() throws Exception {
         Configurations configs = new Configurations();
-        Configuration cfg = configs.properties("appsettings.properties");
+        Configuration cfg = configs.properties("Proporties/appsettings.properties");
 
         String dir = cfg.getString("orders.directory");
         if (dir == null || dir.isBlank()) {
