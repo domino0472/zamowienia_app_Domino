@@ -5,6 +5,9 @@ services:
     image: pl.dominiak.orders/zamowienia-app:latest
     container_name: orders-processor
 
+    environment:
+      - ENV VAR NAME 1=env var value 1
+      - ENV VAR NAME 2=env var value 2
     # DODANO: Instrukcja budowania obrazu z Dockerfile
     build:
       context: ../   # Katalog, w którym znajduje się pom.xml i katalog src

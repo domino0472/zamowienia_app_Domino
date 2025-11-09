@@ -7,6 +7,12 @@ import org.apache.commons.configuration2.builder.fluent.Configurations;
 
 
 public final class AppConfigLoader {
+
+    private static final String ENV_VAR_NAME = "ORDERS_DATA_DIR";
+    private static final String CONFIG_KEY = "orders.directory";
+    private static final String PROPERTIES_FILE_PATH = "resources/Properties/appsettings.properties";
+
+
     private AppConfigLoader() {
     }
 
