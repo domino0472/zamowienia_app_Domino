@@ -1,0 +1,13 @@
+# .dockerignore
+
+# Ignoruj katalogi kompilacji i IDE
+target/
+.idea/
+.mvn/
+*.iml
+.git/
+
+# KLUCZOWE: Ignoruj katalogi z logami Dockera wewnątrz projektu
+src/ZamowienieApp-Docker/logs/
+**/logs/
+**/*.log

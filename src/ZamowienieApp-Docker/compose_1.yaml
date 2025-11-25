@@ -1,0 +1,18 @@
+
+services:
+  orders-app:
+
+    image: orders-app:1
+    container_name: orders-processor
+
+    environment:
+      - ENV VAR NAME 1=env var value 1
+      - ENV VAR NAME 2=env var value 2
+    build:
+      context:    C:\Users\damia\IdeaProjects\firstmaven
+      dockerfile: Dockerfile
+    volumes:
+      - ./zadania_wejsciowe:/app/input/orders
+
+    ports:
+      - "22:22"
