@@ -37,3 +37,7 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+src/ZamowienieApp-Docker/data/
+src/ZamowienieApp-Docker/logs/
+src/ZamowienieApp-Docker/config/

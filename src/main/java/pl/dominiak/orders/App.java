@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 
-public class App {
+public class vApp {
     public static void main(String[] args) throws Exception {
 
         AppSettings settings = AppConfigLoader.load();
