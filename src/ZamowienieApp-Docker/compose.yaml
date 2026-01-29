@@ -9,10 +9,22 @@ services:
     restart: always
     volumes:
       - registry_data:/var/lib/registry
+
+  gitlab-runner:
+    image: "gitlab/gitlab-runner:alpine3.21"
+    container_name: "gitlab-runner"
+    restart: always
+    volumes:
+
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   gitlab:
 
     image: 'gitlab/gitlab-ce:latest'
     container_name: gitlab
+
+
     
 
     restart: always
