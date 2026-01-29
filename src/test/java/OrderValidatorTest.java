@@ -1,9 +1,8 @@
-package pl.dominiak.orders.logic;
-
 import com.github.nylle.javafixture.JavaFixture;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import pl.dominiak.orders.logic.OrderValidator;
 import pl.dominiak.orders.model.OrderRequest;
 import pl.dominiak.orders.model.ProductItem;
 

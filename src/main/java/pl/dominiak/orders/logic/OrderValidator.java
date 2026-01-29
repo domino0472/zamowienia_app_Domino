@@ -1,141 +1,77 @@
-package pl.dominiak.orders.config;
+package pl.dominiak.orders.logic;
 
-import com.github.nylle.javafixture.JavaFixture;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import pl.dominiak.orders.model.Customer;
 import pl.dominiak.orders.model.OrderRequest;
 import pl.dominiak.orders.model.ProductItem;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+public class OrderValidator {
 
-class OrderValidatorTest {
+    // Zbiór dozwolonych jednostek (wielkość liter nie będzie miała znaczenia w logice)
+    private static final Set<String> ALLOWED_UNITS = Set.of("GRAM", "KILOGRAM", "TONA", "G", "KG", "T");
+    private static final BigDecimal MAX_WEIGHT_KG = new BigDecimal("2000"); // 2 tony
 
-    private OrderValidator validator;
-    private JavaFixture fixture;
+    public boolean validate(OrderRequest request) {
+        if (request == null) {
+            return false;
+        }
 
-    @BeforeEach
-    void setUp() {
-        validator = new OrderValidator();
-        fixture = new JavaFixture();
+        // --- WARUNEK 1: Imię i nazwisko nie mogą być puste ---
+        Customer customer = request.getCustomer();
+        if (customer == null || isEmpty(customer.getFirstName()) || isEmpty(customer.getLastName())) {
+            System.err.println("Walidacja nieudana: Brak danych klienta.");
+            return false;
+        }
+
+        // --- WARUNEK 2: Liczba produktów od 1 do 9 ---
+        List<ProductItem> products = request.getProducts();
+        if (products == null || products.isEmpty() || products.size() > 9) {
+            System.err.println("Walidacja nieudana: Nieprawidłowa liczba produktów (" + (products == null ? 0 : products.size()) + ").");
+            return false;
+        }
+
+        BigDecimal totalWeightInKg = BigDecimal.ZERO;
+
+        for (ProductItem item : products) {
+            // --- WARUNEK 4: Ilość musi być dodatnia ---
+            if (item.getQuantity() == null || item.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
+                System.err.println("Walidacja nieudana: Ilość produktu musi być dodatnia.");
+                return false;
+            }
+
+            // --- WARUNEK 3: Dozwolone jednostki (gram, kilogram, tona) ---
+            String unit = item.getUnit() == null ? "" : item.getUnit().toUpperCase().trim();
+            if (!ALLOWED_UNITS.contains(unit)) {
+                System.err.println("Walidacja nieudana: Nieobsługiwana jednostka miary: " + unit);
+                return false;
+            }
+
+            // Przeliczamy wagę elementu na KG, aby sprawdzić limit całkowity
+            BigDecimal weightInKg = convertToKg(item.getQuantity(), unit);
+            totalWeightInKg = totalWeightInKg.add(weightInKg);
+        }
+
+        // --- WARUNEK 5: Całkowita waga <= 2 tony (2000 kg) ---
+        if (totalWeightInKg.compareTo(MAX_WEIGHT_KG) > 0) {
+            System.err.println("Walidacja nieudana: Przekroczono limit wagi (Limit: 2000kg, Obecnie: " + totalWeightInKg + "kg).");
+            return false;
+        }
+
+        return true;
     }
 
-    @Test
-    @DisplayName("Powinien zaakceptować poprawne zamówienie (Happy Path)")
-    void shouldAcceptValidOrder() {
-        // Arrange
-        OrderRequest order = createValidOrder();
-
-        // Act
-        boolean result = validator.validate(order);
-
-        // Assert
-        assertTrue(result, "Poprawne zamówienie powinno zostać zaakceptowane");
+    private boolean isEmpty(String text) {
+        return text == null || text.trim().isEmpty();
     }
 
-    @Test
-    @DisplayName("Powinien odrzucić zamówienie bez danych klienta")
-    void shouldRejectMissingCustomer() {
-        OrderRequest order = createValidOrder();
-        order.setCustomer(null); // Psucie danych
-
-        assertFalse(validator.validate(order));
-    }
-
-    @Test
-    @DisplayName("Powinien odrzucić zamówienie z pustym imieniem")
-    void shouldRejectEmptyFirstName() {
-        OrderRequest order = createValidOrder();
-        order.getCustomer().setFirstName(""); // Psucie danych
-
-        assertFalse(validator.validate(order));
-    }
-
-    @Test
-    @DisplayName("Powinien odrzucić zamówienie bez produktów")
-    void shouldRejectEmptyProductList() {
-        OrderRequest order = createValidOrder();
-        order.setProducts(Collections.emptyList()); // 0 produktów
-
-        assertFalse(validator.validate(order));
-    }
-
-    @Test
-    @DisplayName("Powinien odrzucić zamówienie ze zbyt dużą liczbą produktów (>9)")
-    void shouldRejectTooManyProducts() {
-        OrderRequest order = createValidOrder();
-        // Generujemy listę 10 produktów
-        List<ProductItem> manyProducts = IntStream.range(0, 10)
-                .mapToObj(i -> {
-                    ProductItem item = fixture.create(ProductItem.class);
-                    item.setQuantity(BigDecimal.ONE);
-                    item.setUnit("KG");
-                    return item;
-                })
-                .toList();
-        order.setProducts(manyProducts);
-
-        assertFalse(validator.validate(order));
-    }
-
-    @Test
-    @DisplayName("Powinien odrzucić produkt z nieznaną jednostką miary")
-    void shouldRejectInvalidUnit() {
-        OrderRequest order = createValidOrder();
-        order.getProducts().get(0).setUnit("LITR"); // Błędna jednostka
-
-        assertFalse(validator.validate(order));
-    }
-
-    @Test
-    @DisplayName("Powinien odrzucić produkt z ujemną ilością")
-    void shouldRejectNegativeQuantity() {
-        OrderRequest order = createValidOrder();
-        order.getProducts().get(0).setQuantity(new BigDecimal("-5"));
-
-        assertFalse(validator.validate(order));
-    }
-
-    @Test
-    @DisplayName("Powinien odrzucić zamówienie przekraczające 2 tony")
-    void shouldRejectOverweightOrder() {
-        OrderRequest order = createValidOrder();
-        // Ustawiamy 3000 KG (limit to 2000 KG)
-        order.getProducts().get(0).setQuantity(new BigDecimal("3000"));
-        order.getProducts().get(0).setUnit("KG");
-
-        assertFalse(validator.validate(order));
-    }
-
-    /**
-     * Metoda pomocnicza tworząca poprawne zamówienie na bazie losowych danych z JavaFixture.
-     * Ponieważ JavaFixture generuje całkowicie losowe stringi i liczby, musimy "poprawić"
-     * kluczowe pola, aby spełniały reguły walidacji (np. jednostka musi być KG, ilość > 0).
-     */
-    private OrderRequest createValidOrder() {
-        // 1. Generujemy losowy obiekt (wszystkie pola wypełnione losowo)
-        OrderRequest order = fixture.create(OrderRequest.class);
-
-        // 2. Naprawiamy dane klienta (na wypadek gdyby wylosował pusty string)
-        order.getCustomer().setFirstName("Jan");
-        order.getCustomer().setLastName("Kowalski");
-
-        // 3. Naprawiamy produkty
-        // Zostawiamy tylko 1 produkt dla uproszczenia
-        ProductItem validItem = new ProductItem();
-        validItem.setProductCode("TEST-SKU-1");
-        validItem.setQuantity(new BigDecimal("10")); // 10 jednostek
-        validItem.setUnit("KG"); // Poprawna jednostka
-
-        order.setProducts(List.of(validItem));
-
-        return order;
+    private BigDecimal convertToKg(BigDecimal quantity, String unit) {
+        return switch (unit) {
+            case "GRAM", "G" -> quantity.divide(BigDecimal.valueOf(1000));
+            case "TONA", "T" -> quantity.multiply(BigDecimal.valueOf(1000));
+            default -> quantity; // Zakładamy KILOGRAM/KG jako bazę
+        };
     }
 }

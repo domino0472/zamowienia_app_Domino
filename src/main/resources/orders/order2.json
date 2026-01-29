@@ -8,12 +8,12 @@
   "products": [
     {
       "productCode": "SKU-ABC-121",
-      "quantity": 11,
-      "unit": "PCS"
+      "quantity": 9,
+      "unit": "KG"
     },
     {
       "productCode": "SKU-XYZ-121",
-      "quantity": 33,
+      "quantity": 5,
       "unit": "KG"
     }
   ]

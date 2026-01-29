@@ -1,10 +1,9 @@
-package pl.dominiak.orders.util;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import pl.dominiak.orders.model.Customer;
 import pl.dominiak.orders.model.OrderRequest;
 import pl.dominiak.orders.model.ProductItem;
+import pl.dominiak.orders.util.OrderNumberGenerator;
 
 import java.util.Collections;
 import java.util.List;
