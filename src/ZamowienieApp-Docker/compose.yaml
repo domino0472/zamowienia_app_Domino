@@ -1,5 +1,14 @@
 version: '3.6'
 services:
+
+  registry:
+    image: registry:2
+    container_name: registry
+    ports:
+      - "5000:5000"
+    restart: always
+    volumes:
+      - registry_data:/var/lib/registry
   gitlab:
 
     image: 'gitlab/gitlab-ce:latest'
@@ -71,3 +80,5 @@ services:
       - "./config:/etc/gitlab:z"
       - "./logs:/var/log/gitlab:z"
       - "./data:/var/opt/gitlab:z"
+volumes:
+  registry_data:
