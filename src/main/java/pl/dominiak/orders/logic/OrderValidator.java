@@ -1,4 +1,4 @@
-package pl.dominiak.orders.config;
+package pl.dominiak.orders.logic;
 
 import pl.dominiak.orders.model.Customer;
 import pl.dominiak.orders.model.OrderRequest;
@@ -10,7 +10,7 @@ import java.util.Set;
 
 public class OrderValidator {
 
-
+    // Zbiór dozwolonych jednostek (wielkość liter nie będzie miała znaczenia w logice)
     private static final Set<String> ALLOWED_UNITS = Set.of("GRAM", "KILOGRAM", "TONA", "G", "KG", "T");
     private static final BigDecimal MAX_WEIGHT_KG = new BigDecimal("2000"); // 2 tony
 
@@ -36,13 +36,13 @@ public class OrderValidator {
         BigDecimal totalWeightInKg = BigDecimal.ZERO;
 
         for (ProductItem item : products) {
-            // --- WARUNEK 3: Ilość musi być dodatnia ---
+            // --- WARUNEK 4: Ilość musi być dodatnia ---
             if (item.getQuantity() == null || item.getQuantity().compareTo(BigDecimal.ZERO) <= 0) {
                 System.err.println("Walidacja nieudana: Ilość produktu musi być dodatnia.");
                 return false;
             }
 
-            // --- WARUNEK 4: Dozwolone jednostki (gram, kilogram, tona) ---
+            // --- WARUNEK 3: Dozwolone jednostki (gram, kilogram, tona) ---
             String unit = item.getUnit() == null ? "" : item.getUnit().toUpperCase().trim();
             if (!ALLOWED_UNITS.contains(unit)) {
                 System.err.println("Walidacja nieudana: Nieobsługiwana jednostka miary: " + unit);
@@ -71,7 +71,7 @@ public class OrderValidator {
         return switch (unit) {
             case "GRAM", "G" -> quantity.divide(BigDecimal.valueOf(1000));
             case "TONA", "T" -> quantity.multiply(BigDecimal.valueOf(1000));
-            default -> quantity;
+            default -> quantity; // Zakładamy KILOGRAM/KG jako bazę
         };
     }
 }
