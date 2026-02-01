@@ -11,7 +11,7 @@ import java.util.Set;
 public class OrderValidator {
 
     // Zbiór dozwolonych jednostek (wielkość liter nie będzie miała znaczenia w logice)
-    private static final Set<String> ALLOWED_UNITS = Set.of("GRAM", "KILOGRAM", "TONA", "G", "KG", "T");
+    private static final Set<String> ALLOWED_UNITS = Set.of("GRAM", "KILOGRAM", "TONA", "G", "KG", "T", "PCS");
     private static final BigDecimal MAX_WEIGHT_KG = new BigDecimal("2000"); // 2 tony
 
     public boolean validate(OrderRequest request) {
