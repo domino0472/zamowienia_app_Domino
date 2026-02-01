@@ -16,6 +16,7 @@ public class App {
     public static void main(String[] args) throws Exception {
 
         AppSettings settings = AppConfigLoader.load();
+        System.out.println("Aplikacja Zamowienia - Wersja: " + settings.getVersion());
         Path ordersDir = Path.of(settings.getOrdersDirectory());
         if (!Files.isDirectory(ordersDir)) {
             System.err.println("ERROR: directory not found: " + ordersDir.toAbsolutePath());

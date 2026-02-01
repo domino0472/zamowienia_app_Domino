@@ -12,6 +12,8 @@ public final class AppConfigLoader {
 
     private static final String ENV_VAR_NAME = "ORDERS_DATA_DIR";
     private static final String CONFIG_KEY = "orders.directory";
+    // Nowy klucz dla wersji (musi pasować do appsettings.properties)
+    private static final String VERSION_KEY = "app.version";
 
     private static final String PROPERTIES_FILE_NAME = "appsettings.properties";
 
@@ -19,23 +21,12 @@ public final class AppConfigLoader {
     }
 
     public static AppSettings load() throws Exception {
+        // Tworzymy obiekt ustawień od razu
+        AppSettings settings = new AppSettings();
 
-        String dir = System.getenv(ENV_VAR_NAME);
-
-        if (dir != null && !dir.trim().isEmpty()) {
-            String finalDir = dir.trim();
-            System.out.println(" [ENV] Ścieżka katalogu pobrana ze zmiennej: " + ENV_VAR_NAME + " = " + finalDir);
-
-            AppSettings s = new AppSettings();
-            s.setOrdersDirectory(finalDir);
-            return s;
-        }
-
-        System.out.println(" Zmienna '" + ENV_VAR_NAME + "' pusta. Próba wczytania z pliku: " + PROPERTIES_FILE_NAME);
-
+        // KROK 1: Wczytanie pliku konfiguracyjnego (zawsze, bo potrzebujemy wersji)
         Configurations configs = new Configurations();
-        Configuration cfg;
-
+        Configuration cfg = null;
         File file = new File(PROPERTIES_FILE_NAME);
 
         try {
@@ -48,25 +39,39 @@ public final class AppConfigLoader {
                     cfg = configs.properties(resource);
                     System.out.println(" Wczytano konfigurację z zasobów classpath (JAR/IDE).");
                 } else {
-                    throw new IOException("Nie znaleziono pliku: " + PROPERTIES_FILE_NAME + " ani na dysku, ani w classpath.");
+                    System.err.println("⚠️ Ostrzeżenie: Nie znaleziono pliku " + PROPERTIES_FILE_NAME);
                 }
             }
         } catch (ConfigurationException ex) {
             throw new IOException("Błąd parsowania pliku konfiguracyjnego.", ex);
         }
 
-        dir = cfg.getString(CONFIG_KEY);
-
-        if (dir == null || dir.isBlank()) {
-            System.out.println("⚠️ Klucz '" + CONFIG_KEY + "' pusty. Używam katalogu domyślnego './data'");
-            dir = "./data";
+        // KROK 2: Ustawienie wersji (jeśli udało się wczytać plik)
+        if (cfg != null) {
+            // Drugi parametr to wartość domyślna, gdyby klucza nie było
+            String version = cfg.getString(VERSION_KEY, "nieznana-wersja");
+            settings.setVersion(version);
+        } else {
+            settings.setVersion("brak-konfiguracji");
         }
 
-        String finalDir = dir.trim();
-        System.out.println("✅ [FILE] Ścieżka katalogu zamówień: " + finalDir);
+        // KROK 3: Ustalenie katalogu (Priorytet: ENV -> Plik -> Domyślny)
+        String envDir = System.getenv(ENV_VAR_NAME);
+        String fileDir = (cfg != null) ? cfg.getString(CONFIG_KEY) : null;
+        String finalDir;
 
-        AppSettings s = new AppSettings();
-        s.setOrdersDirectory(finalDir);
-        return s;
+        if (envDir != null && !envDir.trim().isEmpty()) {
+            finalDir = envDir.trim();
+            System.out.println(" [ENV] Ścieżka katalogu pobrana ze zmiennej: " + ENV_VAR_NAME + " = " + finalDir);
+        } else if (fileDir != null && !fileDir.isBlank()) {
+            finalDir = fileDir.trim();
+            System.out.println("✅ [FILE] Ścieżka katalogu zamówień: " + finalDir);
+        } else {
+            System.out.println("⚠️ Klucz '" + CONFIG_KEY + "' pusty lub brak zmiennej ENV. Używam katalogu domyślnego './data'");
+            finalDir = "./data";
+        }
+
+        settings.setOrdersDirectory(finalDir);
+        return settings;
     }
 }
