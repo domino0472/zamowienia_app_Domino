@@ -8,6 +8,7 @@ variables:
 
 stages:
   - test
+  - build
   - deploy
 
 cache:
@@ -20,7 +21,12 @@ unit-tests:
     - mvn test
   allow_failure: true
 
-build-and-deploy:
+build-check:
+  stage: build
+  script:
+    - mvn package -DskipTests
+
+build-and-push-docker:
   stage: deploy
   image: maven:3.9-eclipse-temurin-21
   services:
