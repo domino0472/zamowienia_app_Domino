@@ -1,13 +1,13 @@
 package pl.dominiak.orders;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import pl.dominiak.orders.config.AppConfigLoader;
 import pl.dominiak.orders.config.AppSettings;
 import pl.dominiak.orders.logic.OrderValidator;
 import pl.dominiak.orders.model.OrderRequest;
 import pl.dominiak.orders.util.OrderNumberGenerator;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,15 +15,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 public class App {
-    private static final Logger logger = LogManager.getLogger(App.class);
+    private static final Logger logger = LogManager.getLogger();
 
     public static void main(String[] args) throws Exception {
 
         AppSettings settings = AppConfigLoader.load();
-        logger.info("Aplikacja Zamowienia - Wersja: " + settings.getVersion());
         Path ordersDir = Path.of(settings.getOrdersDirectory());
         if (!Files.isDirectory(ordersDir)) {
-            logger.error("ERROR: directory not found: " + ordersDir.toAbsolutePath());
+            logger.error("Katalog nie został znaleziony: {}", ordersDir.toAbsolutePath());
             System.exit(1);
         }
 
@@ -41,21 +40,20 @@ public class App {
                             OrderRequest or = mapper.readValue(p.toFile(), OrderRequest.class);
 
                             if (!validator.validate(or)) {
-                                throw new RuntimeException("Validation failed");
+                                throw new RuntimeException("Walidacja nieudana dla pliku");
                             }
 
                             String reqNo = OrderNumberGenerator.generate(or);
-                            logger.info("OK: " + p.getFileName() + " -> requestNo=" + reqNo);
+                            logger.info("OK: {} -> requestNo={}", p.getFileName(), reqNo);
                             ok.incrementAndGet();
                         } catch (Exception ex) {
-
-                            logger.error("FAIL: " + p.getFileName() + " -> " + ex.getMessage());
+                            logger.warn("FAIL: {} -> {}", p.getFileName(), ex.getMessage());
                             failed.incrementAndGet();
                         }
                     });
         }
 
-        logger.info("SUMMARY: ok=" + ok.get() + ", failed=" + failed.get());
+        logger.info("PODSUMOWANIE: ok={}, failed={}", ok.get(), failed.get());
         if (failed.get() > 0) {
             System.exit(1);
         }

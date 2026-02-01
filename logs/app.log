@@ -4,3 +4,11 @@
 2026-02-01 22:21:40 [main] INFO  pl.dominiak.orders.App - OK: order3.json -> requestNo=OR-MJ-2-6AAED5354A3F72C1
 2026-02-01 22:21:40 [main] INFO  pl.dominiak.orders.App - OK: order4.json -> requestNo=OR-PN-2-5E8B092731012647
 2026-02-01 22:21:40 [main] INFO  pl.dominiak.orders.App - SUMMARY: ok=4, failed=0
+2026-02-01 22:37:19 [main] WARN  pl.dominiak.orders.logic.OrderValidator - Walidacja nieudana: Nieobsługiwana jednostka miary: PCS
+2026-02-01 22:37:19 [main] WARN  pl.dominiak.orders.App - FAIL: order1.json -> Walidacja nieudana dla pliku
+2026-02-01 22:37:19 [main] INFO  pl.dominiak.orders.App - OK: order2.json -> requestNo=OR-PC-2-AFE8DE3B4688A83C
+2026-02-01 22:37:19 [main] WARN  pl.dominiak.orders.logic.OrderValidator - Walidacja nieudana: Nieobsługiwana jednostka miary: PCS
+2026-02-01 22:37:19 [main] WARN  pl.dominiak.orders.App - FAIL: order3.json -> Walidacja nieudana dla pliku
+2026-02-01 22:37:19 [main] WARN  pl.dominiak.orders.logic.OrderValidator - Walidacja nieudana: Nieobsługiwana jednostka miary: PCS
+2026-02-01 22:37:19 [main] WARN  pl.dominiak.orders.App - FAIL: order4.json -> Walidacja nieudana dla pliku
+2026-02-01 22:37:19 [main] INFO  pl.dominiak.orders.App - PODSUMOWANIE: ok=1, failed=3
