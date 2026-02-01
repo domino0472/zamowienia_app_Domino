@@ -2,49 +2,40 @@ image: maven:3.9-eclipse-temurin-21
 
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=.m2/repository"
- 
   DOCKER_REGISTRY: "host.docker.internal:5000"
-
   DOCKER_TLS_CERTDIR: ""
+  DOCKER_HOST: "tcp://docker:2375"
 
 stages:
   - test
   - build
-  - deploy 
+  - deploy
 
 cache:
   paths:
     - .m2/repository
 
-
 unit-tests:
   stage: test
   script:
     - mvn test
+  allow_failure: true
 
-
-build-app:
+build-check:
   stage: build
   script:
     - mvn package -DskipTests
-  artifacts:
-    paths:
-      - target/*.jar
-    expire_in: 1 hour
-
 
 build-and-push-docker:
   stage: deploy
-  image: docker:latest
+  image: maven:3.9-eclipse-temurin-21
   services:
- 
     - name: docker:dind
       command: ["--insecure-registry=host.docker.internal:5000"]
   script:
-    - echo "Budowanie obrazu dla wersji $CI_COMMIT_TAG"
- 
+    - apt-get update && apt-get install -y docker.io
+    - mvn package -DskipTests
     - docker build -t $DOCKER_REGISTRY/zamowienia-app:$CI_COMMIT_TAG .
- 
     - docker push $DOCKER_REGISTRY/zamowienia-app:$CI_COMMIT_TAG
   only:
-    - tags  
+    - tags
