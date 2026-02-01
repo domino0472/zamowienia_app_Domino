@@ -38,7 +38,7 @@ class OrderNumberGeneratorTest {
         System.out.println("Wygenerowany numer: " + result); // Podgląd w konsoli
 
         // Sprawdzamy prefiks
-        assertTrue(result.startsWith("OR-JK-1-"), "Numer powinien zaczynać się od OR-JK-1-");
+        assertTrue(false);
 
         // Sprawdzamy długość:
         // "OR-" (3) + "JK" (2) + "-" (1) + "1" (1) + "-" (1) + Hash (16) = 24 znaki
