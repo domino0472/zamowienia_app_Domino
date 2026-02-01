@@ -6,6 +6,8 @@ import pl.dominiak.orders.config.AppSettings;
 import pl.dominiak.orders.logic.OrderValidator;
 import pl.dominiak.orders.model.OrderRequest;
 import pl.dominiak.orders.util.OrderNumberGenerator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,13 +15,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 public class App {
+    private static final Logger logger = LogManager.getLogger(App.class);
+
     public static void main(String[] args) throws Exception {
 
         AppSettings settings = AppConfigLoader.load();
-        System.out.println("Aplikacja Zamowienia - Wersja: " + settings.getVersion());
+        logger.info("Aplikacja Zamowienia - Wersja: " + settings.getVersion());
         Path ordersDir = Path.of(settings.getOrdersDirectory());
         if (!Files.isDirectory(ordersDir)) {
-            System.err.println("ERROR: directory not found: " + ordersDir.toAbsolutePath());
+            logger.error("ERROR: directory not found: " + ordersDir.toAbsolutePath());
             System.exit(1);
         }
 
@@ -36,25 +40,22 @@ public class App {
                         try {
                             OrderRequest or = mapper.readValue(p.toFile(), OrderRequest.class);
 
-
                             if (!validator.validate(or)) {
                                 throw new RuntimeException("Validation failed");
                             }
 
-
                             String reqNo = OrderNumberGenerator.generate(or);
-                            System.out.println("OK: " + p.getFileName() + " -> requestNo=" + reqNo);
+                            logger.info("OK: " + p.getFileName() + " -> requestNo=" + reqNo);
                             ok.incrementAndGet();
                         } catch (Exception ex) {
 
-                            System.err.println("FAIL: " + p.getFileName() + " -> " + ex.getMessage());
+                            logger.error("FAIL: " + p.getFileName() + " -> " + ex.getMessage());
                             failed.incrementAndGet();
                         }
                     });
         }
 
-
-        System.out.println("SUMMARY: ok=" + ok.get() + ", failed=" + failed.get());
+        logger.info("SUMMARY: ok=" + ok.get() + ", failed=" + failed.get());
         if (failed.get() > 0) {
             System.exit(1);
         }
