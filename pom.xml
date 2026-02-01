@@ -176,7 +176,7 @@
                                 <resource>
                                     <directory>src/main/resources</directory>
                                     <includes>
-                                        <include>appsettings.docker.properties</include>
+                                        <include>Properties/appsettings.docker.properties</include>
                                         <include>cops.xml</include>
                                     </includes>
                                 </resource>
