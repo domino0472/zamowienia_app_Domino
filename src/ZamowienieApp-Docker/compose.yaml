@@ -1,6 +1,26 @@
 version: '3.6'
 services:
 
+  openobserve:
+    image: public.ecr.aws/zinclabs/openobserve:v0.40.0
+    container_name: openobserve
+    environment:
+      - ZO_DATA_DIR=/data
+      - ZO_ROOT_USER_EMAIL=root@example.com
+      - ZO_ROOT_USER_PASSWORD=pass
+    volumes:
+      - "./openobserve_data:/data"
+    ports:
+      - "5080:5080"
+    restart: always
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    container_name: mailpit
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    restart: always
   registry:
     image: registry:2
     container_name: registry
@@ -41,7 +61,7 @@ services:
         nginx['listen_port'] = 4321
         nginx['listen_ssl_port'] = 443
         nginx['redirect_http_to_https'] = false
-        nginx['gzip_enabled'] = false # Zgodnie z plikiem źródłowym
+        nginx['gzip_enabled'] = false 
         
         
         gitlab_kas['enable'] = false
@@ -53,14 +73,14 @@ services:
         node_exporter['enable'] = false
         redis_exporter['enable'] = false
         gitlab_exporter['enable'] = false
-        monitoring_role['enable'] = false # Zgodnie z plikiem źródłowym
+        monitoring_role['enable'] = false 
         
         # Ustawienia sidekiq
         sidekiq['max_processes'] = 0 
         sidekiq['concurrency'] = 10
         
         # Inne wyłączenia
-        gitlab_rails['usage_ping_enabled'] = false # Zgodnie z plikiem źródłowym
+        gitlab_rails['usage_ping_enabled'] = false 
         logrotate['enable'] = false
         gitlab_rails['gitlab_kas_enabled'] = false
 
