@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 import pl.dominiak.orders.config.AppConfigLoader;
 import pl.dominiak.orders.config.AppSettings;
 import pl.dominiak.orders.logic.OrderValidator;
+import pl.dominiak.orders.model.Customer;
 import pl.dominiak.orders.model.OrderRequest;
 import pl.dominiak.orders.util.OrderNumberGenerator;
 
@@ -38,9 +39,24 @@ public class App {
                     .forEach(p -> {
                         try {
                             OrderRequest or = mapper.readValue(p.toFile(), OrderRequest.class);
+                            if (validator.validate(or)) {
+                                String reqNo = OrderNumberGenerator.generate(or);
+                                logger.info("ZAMÓWIENIE: {}", reqNo);
 
-                            if (!validator.validate(or)) {
-                                throw new RuntimeException("Walidacja nieudana dla pliku");
+
+                                Customer c = or.getCustomer();
+                                logger.info("Klient: {} {}, Email: {}", c.getFirstName(), c.getLastName(), c.getEmail());
+
+                                java.util.Random random = new java.util.Random();
+                                logger.info("Produkty:");
+                                or.getProducts().forEach(prod -> {
+                                    double price = 10 + (500 - 10) * new java.util.Random().nextDouble();
+
+                                    logger.info("- {} | Ilość: {} | Cena: {} PLN",
+                                            prod.getProductCode(), prod.getQuantity(), String.format("%.2f", price));
+                                });
+
+                                ok.incrementAndGet();
                             }
 
                             String reqNo = OrderNumberGenerator.generate(or);
