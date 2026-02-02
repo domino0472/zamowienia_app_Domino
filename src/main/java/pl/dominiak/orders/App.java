@@ -8,6 +8,7 @@ import pl.dominiak.orders.config.AppSettings;
 import pl.dominiak.orders.logic.OrderValidator;
 import pl.dominiak.orders.model.Customer;
 import pl.dominiak.orders.model.OrderRequest;
+import pl.dominiak.orders.util.EmailService;
 import pl.dominiak.orders.util.OrderNumberGenerator;
 
 import java.nio.file.Files;
@@ -57,6 +58,8 @@ public class App {
                                 });
 
                                 ok.incrementAndGet();
+                                String emailBody = "Dziękujemy za zamówienie! \nNumer: " + reqNo;
+                                EmailService.send(or.getCustomer().getEmail(), "Podsumowanie zamówienia", emailBody, settings);
                             }
 
                             String reqNo = OrderNumberGenerator.generate(or);
